@@ -6,16 +6,20 @@ void output(int *pdeck, char *pname);
 
 int main(void)
 {
-    int trigger;                        //シールドトリガーの枚数
+    int trigger;                        //シールドトリガーの種類数
+    int t_number;                       //シールドトリガーの総枚数
     int deck[41] = {0};                 //デッキ内　要素が 0 の時トリガーでないカード、　1 の時を1種類目のトリガーとする
-    int *pdeck = &deck[0];                  //deck配列を差すアドレス
-    char t_name[40][100] = {0};               //トリガーの名前
-    int error_flag;                     //エラーフラッグ　エラーチェックに使用
+    int *pdeck = &deck[0];              //deck配列を差すアドレス
+    char t_name[40][100] = {0};         //トリガーの名前
     int i;                              //ループカウンタ
     int j;                              //ループカウンタ
     int temp;                           //作業領域
-    int end_flag;                       //終了フラグ
+    int error_flag;                     //エラーフラッグ　エラーチェックに使用
     int roop_flag;                      //ループ終了を判定するフラグ
+    int end_flag;                       //終了フラグ
+    double kakuritu;                    //確率
+    
+    
 
     srand(time(NULL));                  //乱数の初期化
 
@@ -36,6 +40,7 @@ int main(void)
     } while (error_flag != 1);
     
     //トリガーの種類ごとの枚数と名前を入力
+    t_number = 0;
     for (i = 0; i < trigger; i++) {
         printf("シールドトリガー %d 種類目の枚数と名前を入力してください\n", i + 1);
         do {
@@ -50,6 +55,7 @@ int main(void)
                 error_flag = 0;
             }
         } while (error_flag != 1);
+        t_number += temp;
         for(j = 0; j < temp; j++) {
             *pdeck = i + 1;
             pdeck++;
@@ -58,6 +64,35 @@ int main(void)
         printf("シールドトリガー名 ==> ");
         scanf("%s", &t_name[i][0]);
     }
+
+    //確率表示
+    for (i = 0; i < 6; i++) {
+        kakuritu = 1;
+        temp = 40 - t_number;
+        for (j = 0; j < 5 - i; j++) {
+            kakuritu = kakuritu * temp;
+            if (temp == 0) {
+
+                break;
+            }
+            temp--;
+        }
+        temp = t_number;
+        for (j = 5 - i; j < 5; j ++){
+            kakuritu = kakuritu * temp;
+            if (temp == 0) {
+                break;
+            }
+            temp--;
+        }
+        for (j = 0; j < i; j++) {
+            kakuritu = kakuritu * (5 - j) / (j + 1);
+        }
+
+        kakuritu = kakuritu / (40 * 39 * 38 * 37 * 36) * 100;
+        printf("シールドトリガーが %d 枚の確率は %.2f です。\n" , i, kakuritu);
+    }
+    
 
     printf("入力お疲れ様です。それではシールドシュミレートを開始します。\n");
     //ランダム かつ 重複がないようにカードを５枚選び表示　選んだカードがシールドなら名前を表示
